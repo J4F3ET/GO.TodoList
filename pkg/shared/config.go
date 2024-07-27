@@ -1,20 +1,21 @@
-package config
+package shared
 
 import (
 	"log"
 	"os"
+	"errors"
 	"github.com/joho/godotenv"
 )
-
+var ErrNotFound = errors.New("environment variables not found")
 func Init(){
 	if err:=godotenv.Load();err != nil{
 		log.Fatalln(err)
 	}
 }
-func EnvGet(nameEnv,nameDefault string)string{
-	env,ok := os.LookupEnv(nameEnv)
-	if !ok {
-		return nameDefault
+//EnvGet return environment variables
+func EnvGet(nameEnv string)(string,error){
+	if env,ok := os.LookupEnv(nameEnv); ok {
+		return env,nil
 	}
-	return env
+	return "",ErrNotFound
 }
