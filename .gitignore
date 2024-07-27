@@ -1,5 +1,8 @@
-# Created by https://www.toptal.com/developers/gitignore/api/go
-# Edit at https://www.toptal.com/developers/gitignore?templates=go
+# Created by https://www.toptal.com/developers/gitignore/api/go,dotenv
+# Edit at https://www.toptal.com/developers/gitignore?templates=go,dotenv
+
+### dotenv ###
+.env
 
 ### Go ###
 # If you prefer the allow list template instead of the deny list, see community template:
@@ -24,4 +27,4 @@
 # Go workspace file
 go.work
 
-# End of https://www.toptal.com/developers/gitignore/api/go
+# End of https://www.toptal.com/developers/gitignore/api/go,dotenv
