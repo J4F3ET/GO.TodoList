@@ -17,8 +17,14 @@ func NewTaskUseCase(repository repository.TaskRepository) *TaskUseCase{
 	return &TaskUseCase{repo: repository}
 }
 // GetAll Return all task or error
-func (uc *TaskUseCase) GetTasks()([]*entity.Task, error){
-	return uc.repo.GetAll()
+func (uc *TaskUseCase) GetTasks(limit, page int)([]*entity.Task, error){
+	if page < 0{
+		page = page*(-1)
+	}
+	if page == 0{
+		page = 1
+	}
+	return uc.repo.GetAll(limit, page-1)
 }
 // GetTaskByID Return Task corresponding to the ID or error
 func (uc *TaskUseCase) GetTaskByID(id int64)(*entity.Task,error){
