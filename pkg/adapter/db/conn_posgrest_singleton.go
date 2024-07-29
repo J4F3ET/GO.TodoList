@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"sync"
 	"todo-app/pkg/shared"
+
 	_ "github.com/lib/pq"
 )
 var ErrGetInstance = errors.New("error instance conn to database")
@@ -53,15 +54,15 @@ func getConnString()(string,error){
                 "DB_NAME":     "",
         }
 
-	for _, envVar := range envVars {
-			value, err := shared.EnvGet(envVar)
-			if err != nil {
-					return "", err
-			}
-			envVars[envVar] = value
+	for key := range envVars {
+		value, err := shared.EnvGet(key)
+		if err != nil {
+			return "", err
+		}
+		envVars[key] = value
 	}
 
-	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=verify-full",
+	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
 		envVars["DB_USERNAME"],
 		envVars["DB_PASSWORD"],
 		envVars["DB_HOST"],

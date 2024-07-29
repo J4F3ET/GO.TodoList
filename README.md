@@ -53,3 +53,6 @@ y comenzar aprender Go
 | **Remove files**                     | feat     | `:fire:`        | feat: :fire: Remove file                   |
 | **Reverting changes**                | revert   | `:rewind:`      | revert: :rewind: I shouldn't do that again |
 | **Improving Performance**            | perf     | `:zap:`         | perf: :zap: Optimizing code                |
+
+
+Complejiodad algorimica es cuanto tiempo se demora en resolver el problema en base a la cantidad de datos
