@@ -7,7 +7,7 @@ import (
 	"github.com/joho/godotenv"
 )
 var ErrNotFound = errors.New("environment variables not found")
-func Init(){
+func init(){
 	if err:=godotenv.Load();err != nil{
 		log.Fatalln(err)
 	}
