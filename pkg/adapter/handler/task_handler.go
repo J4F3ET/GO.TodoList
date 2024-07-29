@@ -62,7 +62,7 @@ func(r *TaskHandler) Delete(res http.ResponseWriter,req *http.Request){
 		http.Error(res,"invalid format id",http.StatusBadRequest)
 	}
 
-	err := r.rep.DeleteTask(input.id)
+	err := r.rep.DeleteTask(input.Id)
 	if err != nil {
 		http.Error(res,err.Error(),http.StatusNotFound)
 	}
