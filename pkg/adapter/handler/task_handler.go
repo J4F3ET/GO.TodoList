@@ -55,7 +55,7 @@ func(r *TaskHandler) GetById(res http.ResponseWriter,req *http.Request){
 }
 func(r *TaskHandler) Delete(res http.ResponseWriter,req *http.Request){
 	var input struct{
-		id int64 `json:"id"`
+		Id int64 `json:"id"`
 	}
 
 	if err := json.NewDecoder(req.Body).Decode(&input); err!= nil {
