@@ -1,0 +1,100 @@
+basePath: /api/v1
+host: localhost:8080
+info:
+  contact:
+    email: jafetstivenlopezzuniga@gmail.com
+    name: Jafet
+    url: https://main--j4f3t.netlify.app/
+  description: This is project by learning go
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: Todo List(go)
+  version: "1.0"
+paths:
+  /task/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete Task by id
+      parameters:
+      - description: Id
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Delete Task by id
+    get:
+      consumes:
+      - application/json
+      description: Retrive Task
+      parameters:
+      - description: Id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: objetc
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Get Task by id
+  /task/{limit}/{page}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all tasks with pagination
+      parameters:
+      - description: Limit
+        in: path
+        name: limit
+        required: true
+        type: integer
+      - description: Page
+        in: path
+        name: page
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: objetc
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Get all tasks
+swagger: "2.0"

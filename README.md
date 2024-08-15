@@ -2,7 +2,10 @@
 
 Hola mundo en go, proyecto de un Todo List con el fin de aprender Clean Architecture
 y comenzar aprender Go
-
+##  Swagger
+> [!NOTE]
+> Endpoint `/swagger/`
+> Comando `swag init -g /main.go -d cmd,internal/entity,pkg/adapter/handler`
 ## Distribución de carpetas
 
 ```
