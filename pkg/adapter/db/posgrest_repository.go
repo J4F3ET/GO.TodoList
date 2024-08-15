@@ -8,7 +8,7 @@ import (
 	"log"
 	"sync"
 	"time"
-	"todo-app/internal/domain/entity"
+	"todo-app/internal/entity"
 	"todo-app/internal/repository"
 )
 
@@ -26,7 +26,7 @@ func NewTaskPostgresRepository() (repository.TaskRepository,error) {
 func (t *TaskPostgresRepository) Create(task *entity.Task) (*entity.Task, error) {
 
 	const query string = `INSERT INTO task (title,completed) VALUES ($1,$2) RETURNING id`
-	var id int64
+	var id uint64
 
 	ctx,cancel := context.WithTimeout(context.Background(),5*time.Second)
 	defer cancel()
@@ -37,12 +37,12 @@ func (t *TaskPostgresRepository) Create(task *entity.Task) (*entity.Task, error)
 		return nil, err
 	}
 
-	task.ID = id
+	task.Id = id
 	return task,nil
 }
 
 // Delete implements repository.TaskRepository.
-func (t *TaskPostgresRepository) Delete(id int64) error {
+func (t *TaskPostgresRepository) Delete(id uint64) error {
 	const query string = `DELETE FROM task WHERE id=$1`
 	var rows int64
 	ctx,cancel := context.WithTimeout(context.Background(),5*time.Second)
@@ -67,14 +67,34 @@ func (t *TaskPostgresRepository) Delete(id int64) error {
 	return nil
 }
 
+var processRow = func(rows *sql.Rows, taskChan chan<- *entity.Task, wg *sync.WaitGroup) {
+	defer wg.Done()
+	for rows.Next() {
+		task := &entity.Task{}
+		err := rows.Scan(&task.Id, &task.Title, &task.Completed)
+		if err != nil {
+			log.Printf("Error al escanear fila: %v", err)
+			continue
+		}
+		taskChan <- task
+	}
+	defer close(taskChan)
+}
+var receiveTask = func(taskChan chan *entity.Task ,wg *sync.WaitGroup,tasksMap map[uint64]*entity.Task){
+	defer wg.Done()
+	for task := range taskChan{
+		tasksMap[task.Id] = task
+	}
+}
 // GetAll implements repository.TaskRepository.
-func (t *TaskPostgresRepository) GetAll(limit, offset int) ([]*entity.Task, error) {
+func (t *TaskPostgresRepository) GetAll(limit, offset int) (map[uint64]*entity.Task, error) {
 	const query string = `
-		SELECT id,title,completed
+		SELECT id, title, completed
 		FROM task
 		ORDER BY id ASC
 		LIMIT $1 OFFSET $2
 	`
+
 	ctx,cancel := context.WithTimeout(context.Background(),5*time.Second)
 	defer cancel()
 
@@ -85,50 +105,28 @@ func (t *TaskPostgresRepository) GetAll(limit, offset int) ([]*entity.Task, erro
 	}
 	defer rows.Close()
 
-	taskChan := make(chan *entity.Task)
-
+	taskChan := make(chan *entity.Task,limit/4)
+	tasksMap:= make(map[uint64]*entity.Task)
 	var wg sync.WaitGroup
-
-	processRow := func(rows *sql.Rows, taskChan chan<- *entity.Task, wg *sync.WaitGroup) {
-		defer wg.Done()
-		task := &entity.Task{}
-		err := rows.Scan(&task.ID, &task.Title, &task.Completed)
-		if err != nil {
-			log.Printf("Error al escanear fila: %v", err)
-			return
-		}
-		taskChan <- task
-	}
-	for rows.Next() {
-		wg.Add(1)
-		go processRow(rows,taskChan,&wg)
-	}
-
-	go func() {
-		wg.Wait()
-		close(taskChan)
-	}()
-
-	tasks:= []*entity.Task{}
-	for task := range taskChan {
-		tasks = append(tasks,task)
-	}
-
+	wg.Add(2)
+	go processRow(rows,taskChan,&wg)
+	go receiveTask(taskChan,&wg,tasksMap)
+	wg.Wait()
 	if err = rows.Err(); err != nil {
 		return nil, err
 	}
-	return tasks,nil
+	return tasksMap,nil
 }
 
 // GetById implements repository.TaskRepository.
-func (t *TaskPostgresRepository) GetById(id int64) (*entity.Task, error) {
+func (t *TaskPostgresRepository) GetById(id uint64) (*entity.Task, error) {
 
 	const query =  `
 		SELECT title,completed
 		FROM task
 		WHERE id=$1
 	`
-	var task = &entity.Task{ID: id}
+	var task = &entity.Task{Id: id}
 
 	ctx,cancel := context.WithTimeout(context.Background(),5*time.Second)
 	defer cancel()
@@ -149,7 +147,7 @@ func (t *TaskPostgresRepository) Update(task *entity.Task) (*entity.Task, error)
 	ctx,cancel := context.WithTimeout(context.Background(),5*time.Second)
 	defer cancel()
 
-	result,err := connPostgres.db.ExecContext(ctx,query,task.Title,task.Completed,task.ID)
+	result,err := connPostgres.db.ExecContext(ctx,query,task.Title,task.Completed,task.Id)
 	if err != nil {
 		return nil,err
 	}

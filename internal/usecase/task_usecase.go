@@ -2,7 +2,7 @@ package usecase
 
 import (
 	"errors"
-	"todo-app/internal/domain/entity"
+	"todo-app/internal/entity"
 	"todo-app/internal/repository"
 )
 
@@ -17,7 +17,7 @@ func NewTaskUseCase(repository repository.TaskRepository) *TaskUseCase{
 	return &TaskUseCase{repo: repository}
 }
 // GetAll Return all task or error
-func (uc *TaskUseCase) GetTasks(limit, page int)([]*entity.Task, error){
+func (uc *TaskUseCase) GetTasks(limit, page int)(map[uint64]*entity.Task, error){
 	if page < 0{
 		page = page*(-1)
 	}
@@ -27,7 +27,7 @@ func (uc *TaskUseCase) GetTasks(limit, page int)([]*entity.Task, error){
 	return uc.repo.GetAll(limit, page-1)
 }
 // GetTaskByID Return Task corresponding to the ID or error
-func (uc *TaskUseCase) GetTaskByID(id int64)(*entity.Task,error){
+func (uc *TaskUseCase) GetTaskByID(id uint64)(*entity.Task,error){
 	task, err := uc.repo.GetById(id)
 	if err != nil{
 		return nil,ErrNotFound
@@ -43,7 +43,7 @@ func (uc *TaskUseCase) CreateTask(title string)(*entity.Task,error){
 	return uc.repo.Create(task)
 }
 // UpdateTask Updates all parameters of a task
-func (uc *TaskUseCase) UpdateTask(id int64,title string,completed bool)(*entity.Task,error){
+func (uc *TaskUseCase) UpdateTask(id uint64,title string,completed bool)(*entity.Task,error){
 	task,err := uc.repo.GetById(id)
 	if err != nil{
 		return nil,ErrNotFound
@@ -53,7 +53,7 @@ func (uc *TaskUseCase) UpdateTask(id int64,title string,completed bool)(*entity.
 	return uc.repo.Update(task)
 }
 // CompleteTask Update only parameter 'completed' with value 'true' by default
-func (uc *TaskUseCase) CompleteTask(id int64)(*entity.Task,error){
+func (uc *TaskUseCase) CompleteTask(id uint64)(*entity.Task,error){
 	task,err := uc.repo.GetById(id)
 	if err != nil{
 		return nil,ErrNotFound
@@ -62,6 +62,6 @@ func (uc *TaskUseCase) CompleteTask(id int64)(*entity.Task,error){
 	return uc.repo.Update(task)
 }
 //DeleteTask Delete task
-func (uc *TaskUseCase) DeleteTask(id int64)(error){
+func (uc *TaskUseCase) DeleteTask(id uint64)(error){
 	return uc.repo.Delete(id)
 }
